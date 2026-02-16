@@ -7,7 +7,7 @@ const { Server } = require("socket.io");
 const app = express();
 const server = http.createServer(app);
 
-const onlineUsers = {};
+const onlineUser = new Map();
 
 const io = new Server(server, {
     cors : {
@@ -18,19 +18,38 @@ const io = new Server(server, {
 io.on("connection", (socket) => {
     console.log("User connected", socket.id);
     
-    socket.on("clean", (data) => {
-        console.log(data, " Clean");
+    socket.on("add_user" , (userId) => {
+        onlineUser.set(userId, socket.id);
+        console.log("Online Users", onlineUser);
     })
 
 
     socket.on("send_message", (data) => {
-        console.log("Message: ",data);
+        const {userId, toUserId, message} = data;
+        console.log("to: ",toUserId);
+        const toid = onlineUser.get(toUserId);
+        console.log("toid : ", toid)
+        if (toid) {
+            io.to(toid).emit("recieve_message", {
+                userId, message
+            })
+        }
+        console.log(message);
     })
 
+
+
     socket.on("disconnect", () => {
-        console.log("User disconnected: ", socket.id)
-    })
+        console.log("User disconnected: ", socket.id);
+        for ( let [userId, socketId] of onlineUser.entries()) {
+            if (socketId == socket.id) {
+                onlineUser.delete(userId);
+                break;
+            }
+        }
+    });
 })
+
 
 app.use(express.json())
 
