@@ -3,9 +3,11 @@ const route = require("./routes/a.js")
 const authrouter = require("./routes/auth.js")
 const http = require("http");
 const { Server } = require("socket.io");
+const { PrismaClient } = require("@prisma/client")
 
 const app = express();
 const server = http.createServer(app);
+const prisma = new PrismaClient();
 
 const onlineUser = new Map();
 
@@ -26,15 +28,29 @@ io.on("connection", (socket) => {
 
     socket.on("send_message", (data) => {
         const {userId, toUserId, message} = data;
-        console.log("to: ",toUserId);
         const toid = onlineUser.get(toUserId);
-        console.log("toid : ", toid)
         if (toid) {
             io.to(toid).emit("recieve_message", {
                 userId, message
             })
         }
-        console.log(message);
+    })
+
+
+    // This socket is not complete
+    socket.on("sendMessage", async (data) => {
+        const {toUserId, chatId, senderId, content} = data;
+        
+        const user = await prisma.user.create({
+
+        })
+
+        const toid = onlineUser.get(toUserId);
+        if (toid) {
+            io.to(toid).emit("recieve_message", {
+                userId, message
+            })
+        }
     })
 
 
