@@ -19,12 +19,13 @@ export default function HomePage() {
     return () => {
       socket.disconnect()
     }
-  });
+  },[]);
 
   const sendMessage = () => {
     socket.emit("send_message", message);
     setMessage("");
   }
+
 
   return (
     <div>
