@@ -23,7 +23,7 @@ io.on("connection", (socket) => {
         io.emit("recieve_message", data);
     })
 
-    socket.io("disconnect", () => {
+    socket.on("disconnect", () => {
         console.log("User disconnected: ", socket.id)
     })
 })
