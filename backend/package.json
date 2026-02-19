@@ -19,8 +19,10 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon server.js",
-    "dev": "nodemon --quiet server.js"
+    "dev": "nodemon --quiet server.js",
+    "build": "prisma generate",
+    "start": "node index.js",
+    "migrate": "prisma migrate deploy"
   },
   "repository": {
     "type": "git",
