@@ -2,9 +2,28 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import axios from 'axios';
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState("");
+  const [passowrd, setPassword] = useState("");
+
+  const onSubmit = async (e) => {
+    e.preventDefault();
+    const response = await axios.get("http://localhost:8000/api/login",
+      {params : {
+        email : email,
+        password : passowrd
+      }}
+    )
+    console.log(response.data.token);
+
+    const token = response.data.token;
+    localStorage.setItem("token", token);
+
+    console.log("Jwt token stored")
+  }
 
   return (
     <>
@@ -51,7 +70,7 @@ export default function LoginPage() {
             </div>
 
             {/* Login Form */}
-            <form action="#" method="POST" className="space-y-5">
+            <form onSubmit={onSubmit} method="POST" className="space-y-5">
               
               {/* Email Field */}
               <div className="space-y-1.5">
@@ -71,6 +90,8 @@ export default function LoginPage() {
                     type="email"
                     autoComplete="email"
                     required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     placeholder="name@company.com"
                     className="block w-full pl-10 pr-3 py-2.5 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#136dec]/20 focus:border-[#136dec] sm:text-sm bg-slate-50 dark:bg-slate-900/50 transition-all duration-200"
                   />
@@ -97,6 +118,8 @@ export default function LoginPage() {
                     type={showPassword ? "text" : "password"}
                     autoComplete="current-password"
                     required
+                    value={passowrd}
+                    onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
                     className="block w-full pl-10 pr-10 py-2.5 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#136dec]/20 focus:border-[#136dec] sm:text-sm bg-slate-50 dark:bg-slate-900/50 transition-all duration-200"
                   />

@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import axios from 'axios';
 
 export default function RegisterPage() {
     const [showPassword, setShowPassword] = useState(false);
@@ -10,7 +11,14 @@ export default function RegisterPage() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 
-    
+    const onSubmit = async (e) => {
+        e.preventDefault()
+        const newUser = await axios.post("http://localhost:8000/auth/signup", {
+            name, email, password
+        })
+        console.log(newUser.data)
+
+    }
 
     return (
     <div className="font-['Inter',sans-serif] bg-[#f6f7f8] dark:bg-[#101922] min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
@@ -39,7 +47,7 @@ export default function RegisterPage() {
 
         {/* Form Section */}
         <div className="px-8 pb-8">
-            <form action="#" className="space-y-5" method="POST">
+            <form action="#" className="space-y-5" method="POST" onSubmit={onSubmit}>
             
             {/* Name Field */}
             <div>
@@ -56,6 +64,8 @@ export default function RegisterPage() {
                     name="name"
                     type="text"
                     required
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
                     placeholder="e.g., Jane Doe"
                     className="block w-full pl-10 pr-3 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-800/50 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#137fec]/20 focus:border-[#137fec] sm:text-sm transition-colors"
                 />
@@ -78,6 +88,8 @@ export default function RegisterPage() {
                     name="email"
                     type="email"
                     required
+                    value={email}
+                    onChange={(e) => {setEmail(e.target.value)}}
                     placeholder="e.g., jane@example.com"
                     className="block w-full pl-10 pr-3 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-800/50 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#137fec]/20 focus:border-[#137fec] sm:text-sm transition-colors"
                 />
@@ -99,6 +111,8 @@ export default function RegisterPage() {
                     name="password"
                     type={showPassword ? "text" : "password"}
                     required
+                    value = {password}
+                    onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
                     className="block w-full pl-10 pr-10 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-800/50 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#137fec]/20 focus:border-[#137fec] sm:text-sm transition-colors"
                 />
@@ -155,8 +169,8 @@ export default function RegisterPage() {
 
             {/* Submit Button */}
             <button
-                type="submit"
                 className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-semibold text-white bg-[#137fec] hover:bg-[#0e6cc9] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#137fec] transition-all duration-200 transform active:scale-[0.98]"
+                type='submit'
             >
                 Sign Up
             </button>
