@@ -16,7 +16,7 @@ export default function HomePage() {
 
   useEffect(() => {
     socket = io("http://localhost:8000");
-
+    
     
     socket.on("connect", () => {
       console.log("ID: ", socket.id);
@@ -40,7 +40,7 @@ export default function HomePage() {
       message
     });
     console.log(userId);
-    console.log(toUserId)
+    console.log(  )
     console.log(message)
     setMessage("");
   }

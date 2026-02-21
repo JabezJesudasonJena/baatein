@@ -15,7 +15,7 @@ const onlineUser = new Map();
 
 const io = new Server(server, {
     cors : {
-        origin : "http://localhost:3000/signup"
+        origin : "http://localhost:3000/test"
     }
 })
 
@@ -26,7 +26,12 @@ io.on("connection", (socket) => {
         onlineUser.set(userId, socket.id);
         console.log("Online Users", onlineUser);
     })
+    
 
+    socket.on("set_user", (user1Id) => {
+        onlineUser.set(user1Id, socket.id);
+        console.log("Online users: ", onlineUser);
+    })
 
     socket.on("send_message", (data) => {
         const {userId, toUserId, message} = data;
@@ -36,6 +41,17 @@ io.on("connection", (socket) => {
                 userId, message
             })
         }
+    })
+
+    socket.on("send_sms", (data) => {
+        const {user1Id, user2Id, msg} = data;
+        const user2Present = onlineUser.get(user2Id);
+        if (user2Present) {
+            io.to(user2Present).emit("recieve_message", {
+                user1Id, msg
+            })
+        }
+        
     })
 
 
