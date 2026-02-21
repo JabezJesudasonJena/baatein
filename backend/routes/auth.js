@@ -1,6 +1,7 @@
 const express = require("express");
 const bcrypt = require("bcrypt")
 const { PrismaClient } = require("@prisma/client")
+const jwt = require("jsonwebtoken")
 
 const authrouter = express.Router();
 const prisma = new PrismaClient();
@@ -22,60 +23,29 @@ authrouter.post("/signup", async (req, res) => {
     }
 })
 
-authrouter.post("/chat/create", async (req, res) => {
+authrouter.get("/login", async (req, res) => {
+    const {email, password} = req.query;
+
     try {
-        const {user1Id, user2Id} = req.body;
-        const chat = await prisma.chat.findMany({
-            where : {
-                user1Id : user1Id,
-                user2Id : user2Id
-            }
+        const user = await prisma.user.findUnique({
+            where : { email }
         })
 
-        if (chat.length > 0) return res.status(200).json(chat, {message : "Chat already exist"});
+        if (!user) {
+            return res.status(400).json({message : "User not found"})
+        }
+        else { 
+            const isMatch = await bcrypt.compare(password, user.password);
+            if (isMatch ) {
+                const token = jwt.sign(user, process.env.JWT_SECRET);
+                res.status(200).json({user : user, token : token});
+            }
+            else return res.status(400).json({message : "Wrong credentials "})
+        }
         
-        const createChat = await prisma.chat.create({
-            data : {
-                user1Id : user1Id,
-                user2Id : user2Id
-            }
-        });
-        //console.log(createChat);
-        return res.json(createChat);
-    } catch (err) { 
-        console.log(err.message)
-    }
-})
-
-authrouter.get("/chat/:id", async (req, res) => {
-    try { 
-        const id = Number(req.params.id);
-
-        const chat = await prisma.chat.findFirst({
-            where : {
-                id : id
-            }
-        });
-        if (chat) return res.status(200).json(chat);
-        return res.status(200).json({message : "User not found"});
-    } catch (err) {
-        return res.status(400).json({message : err.message})
-    }
-})
-
-authrouter.post("/message/send", async(req, res) => {
-    try {
-        const {chatId, senderId, content} = req.body;
-        const con = await prisma.message.create({
-            data : {
-                chatId : chatId,
-                senderId : senderId,
-                content : content
-            }
-        });
-        res.status(200).json(con);
-    } catch (err) {
-        return res.status(400).json({message : err.message})
+    } catch ( err) {
+        console.log(err.mesaage)
+        res.status(400).json({mesaage : err.mesaage})
     }
 })
 

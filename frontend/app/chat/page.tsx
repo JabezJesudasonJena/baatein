@@ -8,9 +8,9 @@ let socket : Socket;
 
 export default function ChatPage({ searchParams }: { searchParams: { chatId?: string } }) {
     
-    const params = use(searchParams)
+    const params = use(searchParams);
     const chatId = params.chatId || "No chatId provided";
-    const [content, setContent] = useState("")
+    const [content, setContent] = useState("");
 
     useEffect (() => {
         socket = io("http://localhost:8000");
@@ -24,17 +24,8 @@ export default function ChatPage({ searchParams }: { searchParams: { chatId?: st
     },[]) 
 
 
-    const onGetDetails = async () => {
-        const data = await axios.get("http://localhost:8000/chat", {
-            params : {
-                chatId
-            }
-        })
-        console.log(data)
-    }   
-
     const joinRoom = async () => {
-        socket.emit("set_user", socket.id); 
+        socket.emit("set_user", localStorage.getItem("user1Id")); 
     }   
 
     const onEnterSend = async () => {
@@ -43,7 +34,7 @@ export default function ChatPage({ searchParams }: { searchParams: { chatId?: st
         const user2Id = localStorage.getItem("user2Id");
         console.log({a : user1Id, b : user2Id})
         socket.emit("send_chat", {
-            user1Id, user2Id, content
+            chatId ,user1Id, content
         })
         console.log("Done")
     }
@@ -55,11 +46,6 @@ export default function ChatPage({ searchParams }: { searchParams: { chatId?: st
         <div>
             
             <h1>ChatId: {chatId}</h1>
-            <button onClick={onGetDetails}>Get Detials </button>
-
-            <br />
-            <br />
-            <br />
             
             <button onClick={joinRoom}>Join Room</button>            
             <br /><br />

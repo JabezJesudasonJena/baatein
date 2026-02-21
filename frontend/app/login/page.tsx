@@ -3,15 +3,18 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import axios from 'axios';
+import { useRouter } from 'next/navigation';
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [passowrd, setPassword] = useState("");
 
+  const router = useRouter();
+
   const onSubmit = async (e) => {
     e.preventDefault();
-    const response = await axios.get("http://localhost:8000/api/login",
+    const response = await axios.get("http://localhost:8000/auth/login",
       {params : {
         email : email,
         password : passowrd
@@ -24,6 +27,7 @@ export default function LoginPage() {
     localStorage.setItem("token", token);
 
     console.log("Jwt token stored")
+    router.push("/new")
   }
 
   return (

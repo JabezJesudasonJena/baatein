@@ -1,5 +1,4 @@
 const express = require("express");
-const route = require("./routes/a.js")
 const authrouter = require("./routes/auth.js")
 const http = require("http");
 const { Server } = require("socket.io");
@@ -86,13 +85,17 @@ io.on("connection", (socket) => {
     // })
     
     socket.on("send_chat", async (data) => {
-        const {chatId, senderId, content} = data;
+        // const {chatId, user1Id, content} = data;
+        const chatId = Number(data.chatId)
+        const user1Id = Number(data.user1Id)
+        const content = data.content
 
         const newMsg = await prisma.message.create({
             data : {
-                chatId, senderId, content
+                chatId, senderId : user1Id, content
             }
         })
+        console.log(newMsg)
     })
 
 
@@ -110,7 +113,6 @@ io.on("connection", (socket) => {
 
 app.use(express.json())
 
-app.use("/api", route)
 
 app.use("/auth",authrouter)
 app.use("/chat", messageRoute)

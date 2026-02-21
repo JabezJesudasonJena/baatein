@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import axios from 'axios';
+import { useRouter } from 'next/navigation';
 
 export default function RegisterPage() {
     const [showPassword, setShowPassword] = useState(false);
@@ -11,13 +12,15 @@ export default function RegisterPage() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 
+    const router = useRouter();
+
     const onSubmit = async (e) => {
         e.preventDefault()
         const newUser = await axios.post("http://localhost:8000/auth/signup", {
             name, email, password
         })
-        console.log(newUser.data)
-
+        console.log(newUser.data);
+        router.push("/login")
     }
 
     return (
