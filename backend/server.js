@@ -5,6 +5,7 @@ const http = require("http");
 const { Server } = require("socket.io");
 const { PrismaClient } = require("@prisma/client")
 const cors = require("cors");
+const messageRoute = require("./routes/messageroute.js")
 
 const app = express();
 app.use(cors())
@@ -15,17 +16,17 @@ const onlineUser = new Map();
 
 const io = new Server(server, {
     cors : {
-        origin : "http://localhost:3000/test"
+        origin : "http://localhost:3000"
     }
 })
 
 io.on("connection", (socket) => {
     console.log("User connected", socket.id);
     
-    socket.on("add_user" , (userId) => {
-        onlineUser.set(userId, socket.id);
-        console.log("Online Users", onlineUser);
-    })
+    // socket.on("add_user" , (userId) => {
+    //     onlineUser.set(userId, socket.id);
+    //     console.log("Online Users", onlineUser);
+    // })
     
 
     socket.on("set_user", (user1Id) => {
@@ -33,44 +34,66 @@ io.on("connection", (socket) => {
         console.log("Online users: ", onlineUser);
     })
 
-    socket.on("send_message", (data) => {
-        const {userId, toUserId, message} = data;
-        const toid = onlineUser.get(toUserId);
-        if (toid) {
-            io.to(toid).emit("recieve_message", {
-                userId, message
-            })
-        }
-    })
+    // socket.on("send_message", (data) => {
+    //     const {userId, toUserId, message} = data;
+    //     const toid = onlineUser.get(toUserId);
+    //     if (toid) {
+    //         io.to(toid).emit("recieve_message", {
+    //             userId, message
+    //         })
+    //     }
+    // })
 
     socket.on("send_sms", (data) => {
         const {user1Id, user2Id, msg} = data;
         const user2Present = onlineUser.get(user2Id);
         if (user2Present) {
-            io.to(user2Present).emit("recieve_message", {
+            io.to(user2Present).emit("get_msg", {
                 user1Id, msg
             })
         }
-        
+    })
+
+    socket.on("search_user", async (data) => {
+        const {user2Id} = data 
+        const finduser = await prisma.user.findFirst({
+            where : {
+                OR : [
+                    {user1Id : user2Id},
+                    {user1Id : user2Id, user2Id : user1Id}
+                ]
+            }
+        })
+
+        if (chat) console.log()
     })
 
 
     // This socket is not complete
-    socket.on("sendMessage", async (data) => {
-        const {toUserId, chatId, senderId, content} = data;
+    // socket.on("sendMessage", async (data) => {
+    //     const {toUserId, chatId, senderId, content} = data;
         
-        const user = await prisma.user.create({
+    //     const user = await prisma.user.create({
 
+    //     })
+
+    //     const toid = onlineUser.get(toUserId);
+    //     if (toid) {
+    //         io.to(toid).emit("recieve_message", {
+    //             userId, message
+    //         })
+    //     }
+    // })
+    
+    socket.on("send_chat", async (data) => {
+        const {chatId, senderId, content} = data;
+
+        const newMsg = await prisma.message.create({
+            data : {
+                chatId, senderId, content
+            }
         })
-
-        const toid = onlineUser.get(toUserId);
-        if (toid) {
-            io.to(toid).emit("recieve_message", {
-                userId, message
-            })
-        }
     })
-
 
 
     socket.on("disconnect", () => {
@@ -90,5 +113,6 @@ app.use(express.json())
 app.use("/api", route)
 
 app.use("/auth",authrouter)
+app.use("/chat", messageRoute)
 
 server.listen(8000, () => {console.log("Server started at http://localhost:8000/")});

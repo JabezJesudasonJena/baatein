@@ -1,4 +1,4 @@
-'use client';
+    'use client';
 
 
 import { useState, useEffect } from "react";
@@ -25,9 +25,15 @@ export default function TestPage () {
             console.log("ID : ", socket.id);
         })
         
+        socket.on("get_msg",(data) => {
+            console.log(data)
+        })
+
         return () => {
             socket.disconnect();
         }
+
+        
     }, [])
 
 
@@ -35,7 +41,7 @@ export default function TestPage () {
         socket.emit("send_sms", {
             user1Id, user2Id, msg
         })
-        console.log({user1Id, user2Id, msg});
+        // console.log({user1Id, user2Id, msg});
     }
 
     const onSetId = () => {

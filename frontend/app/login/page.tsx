@@ -18,7 +18,8 @@ export default function LoginPage() {
       }}
     )
     console.log(response.data.token);
-
+    // const user1Id = localStorage.getItem("user1");
+    // if (!user1Id) localStorage.setItem("user1Id")
     const token = response.data.token;
     localStorage.setItem("token", token);
 
