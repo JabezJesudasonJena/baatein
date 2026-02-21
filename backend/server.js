@@ -108,6 +108,29 @@ io.on("connection", (socket) => {
             }
         }
     });
+
+
+    socket.on("get_past_chats" ,async (data) => {
+        const {user1Id } = data;
+        const allChats = await prisma.chat.findMany({
+            where : {
+                user1Id : user1Id
+            },
+        })
+        socket.emit("recieve_all_data", allChats);
+     })
+
+    socket.on("get_current_chat", async (data) => {
+        const {chatId} = await prisma.message.findMany({
+            where : {
+                chatId : chatId
+            },
+            orderBy : {id : "asc"}
+        })
+    })
+
+    
+
 })
 
 
